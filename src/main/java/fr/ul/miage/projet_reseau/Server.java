@@ -1,0 +1,7 @@
+package fr.ul.miage.projet_reseau;
+
+public class Server {
+    public static void main(String[] args) {
+        System.out.println("Hello world");
+    }
+}
