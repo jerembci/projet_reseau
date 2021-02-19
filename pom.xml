@@ -15,7 +15,7 @@
         <project.bindist.dir.unix>${project.basedir}/bindist-unix</project.bindist.dir.unix>
         <project.bindist.dir.win>${project.basedir}/bindist-win</project.bindist.dir.win>
         <!-- Nom de la classe principale -->
-        <project.main.classname>${project.groupId}.${project.artifactId}.Main</project.main.classname>
+        <project.main.classname>${project.groupId}.${project.artifactId}.Server</project.main.classname>
         <!-- Nom de la classe principale -->
         <project.bin.appname>reseau</project.bin.appname>
     </properties>
