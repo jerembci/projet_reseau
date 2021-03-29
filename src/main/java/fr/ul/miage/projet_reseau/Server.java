@@ -7,10 +7,11 @@ public class Server {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
+    private DataOutputStream dos;
     private BufferedReader in;
 
-    private final String HttpOK = "HTTP/1.1 200 OK" + "\r\n";
-    private final String contentTypeText = "Content-Type: text/html" + "\r\n";
+    private final String HttpOK = String.format("HTTP/1.1 200 OK%n");
+    private final String contentTypeText = String.format("Content-Type: text/html%n");
 
     private static final int PORT = 80;
 
@@ -19,25 +20,25 @@ public class Server {
         while (true) {
             clientSocket = serverSocket.accept();
 
-            DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
+            dos = new DataOutputStream(clientSocket.getOutputStream());
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             while (in.ready()) {
                 System.out.println(in.readLine());
             }
 
             File file = new File("sites/index.html");
+            FileInputStream fis = new FileInputStream(file);
 
             dos.writeBytes(HttpOK);
             dos.writeBytes(contentTypeText);
+            //dos.writeBytes("Content-Length: " + fis.available() + "\r\n");
 
-            FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = fis.read(buffer)) != -1) {
                 dos.write(buffer, 0, bytesRead);
             }
             fis.close();
-
             dos.close();
         }
     }
