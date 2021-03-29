@@ -31,13 +31,8 @@ public class Server {
 
             dos.writeBytes(HttpOK);
             dos.writeBytes(contentTypeText);
-            //dos.writeBytes("Content-Length: " + fis.available() + "\r\n");
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                dos.write(buffer, 0, bytesRead);
-            }
+            dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
+            dos.write(fis.readAllBytes());
             fis.close();
             dos.close();
         }
