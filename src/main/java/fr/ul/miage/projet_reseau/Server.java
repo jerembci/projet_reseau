@@ -38,23 +38,24 @@ public class Server {
             System.out.println("Host : " + hostName);
             System.out.println();
 
-            // TODO: Vérifier que c'est du GET
-            String path = requete.split(" ")[1];
-            if (!path.contains("favicon.ico")) {
-                if (path.equals("/")) {
-                    path = "/index.html";
+            if (requete.startsWith("GET")) {
+                String path = requete.split(" ")[1];
+                if (!path.contains("favicon.ico")) {
+                    if (path.equals("/")) {
+                        path = "/index.html";
+                    }
+
+                    File file = new File("sites/" + hostName + path);
+                    FileInputStream fis = new FileInputStream(file);
+
+                    dos.writeBytes(HttpOK);
+                    dos.writeBytes(contentTypeText);
+                    dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
+                    dos.write(fis.readAllBytes());
+                    fis.close();
                 }
-
-                File file = new File("sites/" + hostName + path);
-                FileInputStream fis = new FileInputStream(file);
-
-                dos.writeBytes(HttpOK);
-                dos.writeBytes(contentTypeText);
-                dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
-                dos.write(fis.readAllBytes());
-                fis.close();
+                dos.close();
             }
-            dos.close();
         }
     }
 
