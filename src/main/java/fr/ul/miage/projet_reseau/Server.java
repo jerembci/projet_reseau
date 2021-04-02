@@ -18,22 +18,42 @@ public class Server {
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"));
         while (true) {
+            System.out.println("En attente d'une connexion...");
             clientSocket = serverSocket.accept();
-
+            System.out.println("Connexion établie par l'IP " + clientSocket.getLocalAddress());
             dos = new DataOutputStream(clientSocket.getOutputStream());
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String requete = in.readLine();
+            String host = in.readLine();
             while (in.ready()) {
-                System.out.println(in.readLine());
+                in.readLine();
             }
 
-            File file = new File("sites/index.html");
-            FileInputStream fis = new FileInputStream(file);
+            System.out.println("Requête : " + requete);
 
-            dos.writeBytes(HttpOK);
-            dos.writeBytes(contentTypeText);
-            dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
-            dos.write(fis.readAllBytes());
-            fis.close();
+            String hostName = host.split(" ")[1];
+            int dotIndex = hostName.indexOf(".");
+            hostName = hostName.substring(0, dotIndex);
+
+            System.out.println("Host : " + hostName);
+            System.out.println();
+
+            // TODO: Vérifier que c'est du GET
+            String path = requete.split(" ")[1];
+            if (!path.contains("favicon.ico")) {
+                if (path.equals("/")) {
+                    path = "/index.html";
+                }
+
+                File file = new File("sites/" + hostName + path);
+                FileInputStream fis = new FileInputStream(file);
+
+                dos.writeBytes(HttpOK);
+                dos.writeBytes(contentTypeText);
+                dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
+                dos.write(fis.readAllBytes());
+                fis.close();
+            }
             dos.close();
         }
     }
