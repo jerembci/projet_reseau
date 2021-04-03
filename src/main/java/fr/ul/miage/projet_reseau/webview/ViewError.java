@@ -8,10 +8,6 @@ public abstract class ViewError extends View {
         super(httpCode, dos);
     }
 
-    protected ViewError(String httpCode, String contentType, DataOutputStream dos) {
-        super(httpCode, contentType, dos);
-    }
-
     @Override
     public void sendResponse(String pathToFile) throws IOException {
         File file = new File("error-pages/" + pathToFile);

@@ -13,12 +13,6 @@ public abstract class View {
         this.dos = dos;
     }
 
-    protected View(String httpCode, String contentType, DataOutputStream dos) {
-        this.httpCode = httpCode;
-        this.contentType = contentType;
-        this.dos = dos;
-    }
-
     protected String retrieveContentType(String path) {
         String extension = path.substring(path.lastIndexOf("."));
         switch (extension) {
