@@ -1,6 +1,5 @@
 package fr.ul.miage.projet_reseau;
 
-import fr.ul.miage.projet_reseau.webview.View;
 import fr.ul.miage.projet_reseau.webview.View200;
 import fr.ul.miage.projet_reseau.webview.View400;
 import fr.ul.miage.projet_reseau.webview.View404;
@@ -43,21 +42,19 @@ public class Server {
                 if (requete.startsWith("GET")) {
                     String path = requete.split(" ")[1];
                     if (!path.contains("favicon.ico")) {
-                        if (path.equals("/")) {
-                            path = "/index.html";
-                        }
+                        path = path.equals("/") ? "/index.html" : path;
                         if (new File("sites/" + hostName + path).isFile()) {
                             // Le fichier existe, on continue l'execution
-                            new View200(path, dos).sendResponse(hostName);
+                            new View200(dos).sendResponse(hostName + path);
                         } else {
                             // Le fichier n'existe pas, on renvoie une erreur 404
-                            new View404(dos).sendResponse(hostName);
+                            new View404(dos).sendResponse();
                         }
                     }
                     dos.flush();
                 } else {
                     // On n'a pas recu de requete GET, on renvoie une erreur 400
-                    new View400(dos).sendResponse(hostName);
+                    new View400(dos).sendResponse();
                 }
             }
         }

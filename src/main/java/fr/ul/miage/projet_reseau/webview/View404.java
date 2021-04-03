@@ -1,16 +1,14 @@
 package fr.ul.miage.projet_reseau.webview;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 
-public class View404 extends View implements ErrorPage {
+public class View404 extends ViewError implements ErrorPage {
 
     public View404(DataOutputStream dos) {
         super("HTTP/1.1 404 Not Found", ErrorPage.contentType, dos);
     }
 
-    @Override
-    public void sendResponse(String host) throws IOException {
-        //TODO
+    public void sendResponse() throws IOException {
+        super.sendResponse("404.html");
     }
 }

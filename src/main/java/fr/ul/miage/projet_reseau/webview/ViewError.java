@@ -2,18 +2,22 @@ package fr.ul.miage.projet_reseau.webview;
 
 import java.io.*;
 
-public class View200 extends View {
+public abstract class ViewError extends View {
 
-    public View200(DataOutputStream dos) {
-        super("HTTP/1.1 200 OK", dos);
+    protected ViewError(String httpCode, DataOutputStream dos) {
+        super(httpCode, dos);
+    }
+
+    protected ViewError(String httpCode, String contentType, DataOutputStream dos) {
+        super(httpCode, contentType, dos);
     }
 
     @Override
     public void sendResponse(String pathToFile) throws IOException {
-        File file = new File("sites/" + pathToFile);
+        File file = new File("error-pages/" + pathToFile);
         try (FileInputStream fis = new FileInputStream(file)) {
             dos.writeBytes(getHttpCode());
-            dos.writeBytes(retrieveContentType(pathToFile));
+            dos.writeBytes("Content-Type: text/html");
             dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
             dos.writeBytes("\r\n");
             dos.write(fis.readAllBytes());
