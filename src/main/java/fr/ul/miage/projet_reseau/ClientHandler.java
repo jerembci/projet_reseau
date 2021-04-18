@@ -73,7 +73,7 @@ public class ClientHandler implements Runnable {
                 }
             } else {
                 // Le fichier n'existe pas, on renvoie une erreur 404
-                new View404(dos).sendResponse();
+                new View500(dos).sendResponse();
             }
             dos.flush();
         } else if (request.startsWith("POST")) {
