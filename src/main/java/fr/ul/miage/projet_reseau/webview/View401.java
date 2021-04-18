@@ -1,15 +1,18 @@
 package fr.ul.miage.projet_reseau.webview;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 
-public class View401 extends ViewError {
+public class View401 extends View {
 
     public View401(DataOutputStream dos) {
         super("HTTP/1.1 401 Unauthorized", dos);
     }
 
     public void sendResponse() throws IOException {
-        super.sendResponse(ErrorPage.PAGE401.page());
+        dos.writeBytes(getHttpCode());
+        dos.writeBytes("Content-Type: text/html\r\n");
+        dos.writeBytes("WWW-Authenticate: Basic realm=\"Accès au site\", charset=\"UTF-8\"");
+        dos.writeBytes("Content-length : \"\"");
+        dos.writeBytes("\r\n");
     }
 }
