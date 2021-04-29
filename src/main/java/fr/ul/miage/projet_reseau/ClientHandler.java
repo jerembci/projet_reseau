@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -52,14 +55,13 @@ public class ClientHandler implements Runnable {
                 }
             }
 
-            System.out.println("Requête : " + request);
+            log.info("Requête : " + request);
 
             String hostName = host.split(" ")[1];
             int dotIndex = hostName.indexOf(".");
             hostName = hostName.substring(0, dotIndex);
 
-            System.out.println("Host : " + hostName);
-            System.out.println();
+            log.info("Host : " + hostName);
 
             parseRequest(dos, request, hostName);
         } catch (IOException e) {
@@ -73,8 +75,9 @@ public class ClientHandler implements Runnable {
             path = path.equals("/") ? "/index.html" : path;
             if (new File(webroot + hostName + path).isFile()) {
                 // Le fichier existe, on continue l'exécution
-                File authFile;
-                if ((authFile = new File(webroot + hostName + "/.htpasswd")).exists()) {
+                String pathToHtpasswd = (path.contains("/") ? path.substring(0, path.lastIndexOf('/')) : "") + "/.htpasswd";
+                File authFile = new File(webroot + hostName + pathToHtpasswd);
+                if ((authFile.exists())) {
                     if (!auth.equals("")) {
                         if (checkCredentials(auth, authFile)) {
                             new View200(dos).sendResponse(webroot, hostName + path);
@@ -94,7 +97,7 @@ public class ClientHandler implements Runnable {
             dos.flush();
         } else if (request.startsWith("POST")) {
             dos.writeBytes("POST");
-            System.out.println("REQUÊTE POST");
+            log.info("REQUÊTE POST");
         } else {
             // On n'a pas recu de requete GET ni POST, on renvoie une erreur 400
             new View400(dos).sendResponse();
@@ -120,18 +123,27 @@ public class ClientHandler implements Runnable {
     private boolean checkCredentials(String auth, File authFile) {
         String encodedCredentials = auth.split(" ")[2];
         String decodedString = new String(Base64.getDecoder().decode(encodedCredentials));
-        System.out.println(decodedString);
         String[] expectedCredentials = decodedString.split(":");
         if (expectedCredentials.length == 2) {
             String username = decodedString.split(":")[0];
             String password = decodedString.split(":")[1];
             List<Credentials> credentialsList = parseAuthFile(authFile);
-            if (credentialsList.stream().anyMatch(c -> c.getUsername().equals(username))) {
-                return true;
-            }
+            return credentialsList.stream().anyMatch(c -> c.getUsername().equals(username) && passwordsMatching(c.getPassword(), password));
         }
-        log.info(decodedString);
         return false;
+    }
+
+    private boolean passwordsMatching(String md5Password, String plainPassword) {
+        String plainPasswordToMD5;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainPassword.getBytes());
+            byte[] digest = md.digest();
+            plainPasswordToMD5 = new BigInteger(1, digest).toString(16);
+            return plainPasswordToMD5.equals(md5Password) || plainPasswordToMD5.equals(md5Password.replaceAll("^0+", ""));
+        } catch (NoSuchAlgorithmException e) {
+            return false;
+        }
     }
 
     @Getter

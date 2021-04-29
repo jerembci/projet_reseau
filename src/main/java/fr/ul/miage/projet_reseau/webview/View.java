@@ -1,13 +1,17 @@
 package fr.ul.miage.projet_reseau.webview;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 
+@Getter
+@Slf4j
 public abstract class View {
 
     protected final String httpCode, contentType;
     protected final DataOutputStream dos;
-    protected final String LOCATION_SITES = "sites/";
-    protected final String LOCATION_ERRORS = "error-pages/";
+    protected static final String LOCATION_ERRORS = "error-pages/";
 
     protected View(String httpCode, DataOutputStream dos) {
         this.httpCode = httpCode;
@@ -48,21 +52,11 @@ public abstract class View {
             dos.writeBytes("\r\n");
             dos.write(fis.readAllBytes());
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            log.error("Exception :" + e.getMessage());
         }
     }
 
-    ;
-
     public String getHttpCode() {
         return httpCode;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public DataOutputStream getDataOutputStream() {
-        return dos;
     }
 }

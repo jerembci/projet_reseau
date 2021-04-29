@@ -1,8 +1,5 @@
 package fr.ul.miage.projet_reseau;
 
-import fr.ul.miage.projet_reseau.webview.View200;
-import fr.ul.miage.projet_reseau.webview.View400;
-import fr.ul.miage.projet_reseau.webview.View404;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
