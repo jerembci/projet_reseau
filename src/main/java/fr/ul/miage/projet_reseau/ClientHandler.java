@@ -26,6 +26,12 @@ public class ClientHandler implements Runnable {
         this.webroot = "sites/";
     }
 
+    /**
+     * On permet à l'utilisateur de renseigner la racine des sites avec un '/' ou non.
+     * S'il ne rensiegne pas le '/', on l'ajoute automatiquement.
+     * @param socket Socket.
+     * @param webroot Racine des sites.
+     */
     public ClientHandler(Socket socket, String webroot) {
         this.socket = socket;
         if (webroot.charAt(webroot.length() - 1) == '/') {
@@ -35,6 +41,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Lit la requête récupérée par le serveur et extrait les infos importantes.
+     * On extrait la première ligne de la requête, l'hôte et les credentials pour faire une vérification dans la méthode parseRequest().
+     */
     @Override
     public void run() {
         try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -69,12 +79,24 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Parse la requête récupérée par le serveur.
+     * Plusieurs vues sont créées pour afficher les différentes infos suivant la situation dans laquelle on se trouve.
+     * A chaque problème rencontré (mauvaise authentification, fichier inexistant, erreur de connexion), on renvoie
+     * une page pour informer l'utilisateur du problème survenu.
+     * @param dos
+     * @param request
+     * @param hostName
+     * @throws IOException
+     */
     private void parseRequest(DataOutputStream dos, String request, String hostName) throws IOException {
         if (request.startsWith("GET")) {
             String path = request.split(" ")[1];
             path = path.equals("/") ? "/index.html" : path;
             if (new File(webroot + hostName + path).isFile()) {
                 // Le fichier existe, on continue l'exécution
+
+                // On check si le path vers le .htpasswd est correct pour éviter les problèmes lors de l'instanciation de File.
                 String pathToHtpasswd = (path.contains("/") ? path.substring(0, path.lastIndexOf('/')) : "") + "/.htpasswd";
                 File authFile = new File(webroot + hostName + pathToHtpasswd);
                 if ((authFile.exists())) {
@@ -104,6 +126,13 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Parse le fichier des credentials autorisés.
+     * Crée un objet Credential contenant le username et le password pour chaque credential (classe déclarée en fin de fichier).
+     * Plus simple de tout stocker dans une liste pour tout comparer lorsque l'on veut autoriser ou non un utilisateur à accéder à une page.
+     * @param authFile Fichier des credentials autorisés.
+     * @return Le fichier transformé en liste.
+     */
     private List<Credentials> parseAuthFile(File authFile) {
         List<Credentials> credentialsList = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(authFile))) {
@@ -120,6 +149,12 @@ public class ClientHandler implements Runnable {
         return credentialsList;
     }
 
+    /**
+     * Vérifie si les credentials renseignés par l'utilisateur sont corrects pour l'autoriser à accéder à la page voulue.
+     * @param auth Credentials renseignés (encodés en Base 64).
+     * @param authFile Fichier contenant les credentials autorisés.
+     * @return True si l'utilisateur est autorisé à accéder à la page, false sinon.
+     */
     private boolean checkCredentials(String auth, File authFile) {
         String encodedCredentials = auth.split(" ")[2];
         String decodedString = new String(Base64.getDecoder().decode(encodedCredentials));
@@ -133,6 +168,13 @@ public class ClientHandler implements Runnable {
         return false;
     }
 
+    /**
+     * Permet de comparer le mot de passe en clair renseigné par l'utilisateur avec les mots de passe hashés en MD5
+     * autorisés dans le fichier .htpasswd.
+     * @param md5Password Mot de passe hashé en MD5.
+     * @param plainPassword Mot de passe en clair.
+     * @return True si les mots de passe correspondent, false sinon.
+     */
     private boolean passwordsMatching(String md5Password, String plainPassword) {
         String plainPasswordToMD5;
         try {
@@ -146,6 +188,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Classe pour stocker les credentials autorisés.
+     * Cela permet une vérification plus simple lorsqu'on en a besoin.
+     */
     @Getter
     static class Credentials {
         private final String username;

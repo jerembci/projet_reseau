@@ -8,6 +8,10 @@ public class View401 extends View {
         super("HTTP/1.1 401 Unauthorized", dos);
     }
 
+    /**
+     * Redéfinit la requête pour renvoyer un problème d'authentificaiton.
+     * @throws IOException
+     */
     public void sendResponse() throws IOException {
         dos.writeBytes(getHttpCode());
         dos.writeBytes("Content-Type: text/html\r\n");

@@ -37,6 +37,10 @@ public class Server {
         }
     }
 
+    /**
+     * Lance le serveur à partir en utilisant les infos du fichier properties.
+     * @throws IOException
+     */
     public void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"))) {
             log.info("En attente d'une connexion...");
@@ -44,7 +48,7 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 log.info("Connexion établie par l'IP : " + clientSocket.getLocalAddress());
 
-                // à chaque connexion d'un client, on créé un thread qui va gérer la requête
+                // à chaque connexion d'un client, on crée un thread qui va gérer la requête
                 ClientHandler clientHandler = new ClientHandler(clientSocket, webroot);
                 new Thread(clientHandler).start();
             }

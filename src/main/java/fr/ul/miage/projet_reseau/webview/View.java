@@ -19,6 +19,11 @@ public abstract class View {
         this.dos = dos;
     }
 
+    /**
+     * Renvoie le bon content-type en fonction du type de fichier rencontré.
+     * @param path
+     * @return
+     */
     protected String retrieveContentType(String path) {
         String extension = path.substring(path.lastIndexOf("."));
         switch (extension) {
@@ -43,7 +48,15 @@ public abstract class View {
         }
     }
 
-    public void sendResponse(String location, String pathToFile) throws IOException {
+    /**
+     * Crée la requête de réponse du serveur pour pouvoir affiche le bon contenu à l'utilisateur.
+     * Cette méthode n'est jamais appelée depuis cette classe mais depuis les classes qui en héritent
+     * et qui redéfinissent éventuellement cette méthode ou l'appelle simplement.
+     * @param location
+     * @param pathToFile
+     * @throws IOException
+     */
+    protected void sendResponse(String location, String pathToFile) throws IOException {
         File file = new File(location + pathToFile);
         try (FileInputStream fis = new FileInputStream(file)) {
             dos.writeBytes(getHttpCode());

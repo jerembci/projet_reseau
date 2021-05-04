@@ -8,4 +8,8 @@ public class View200 extends View {
         super("HTTP/1.1 200 OK", dos);
     }
 
+    @Override
+    public void sendResponse(String location, String pathToFile) throws IOException {
+        super.sendResponse(location, pathToFile);
+    }
 }
