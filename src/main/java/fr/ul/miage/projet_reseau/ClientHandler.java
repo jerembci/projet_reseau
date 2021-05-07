@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class ClientHandler implements Runnable {
@@ -19,12 +20,7 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final String webroot;
     private String auth = "";
-
-    public ClientHandler(Socket socket) {
-        this.socket = socket;
-        // Valeur par défaut
-        this.webroot = "sites/";
-    }
+    private final boolean listing;
 
     /**
      * On permet à l'utilisateur de renseigner la racine des sites avec un '/' ou non.
@@ -32,8 +28,9 @@ public class ClientHandler implements Runnable {
      * @param socket Socket.
      * @param webroot Racine des sites.
      */
-    public ClientHandler(Socket socket, String webroot) {
+    public ClientHandler(Socket socket, String webroot, boolean listing) {
         this.socket = socket;
+        this.listing = listing;
         if (webroot.charAt(webroot.length() - 1) == '/') {
             this.webroot = webroot;
         } else {
@@ -47,11 +44,11 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-        try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        try (var dos = new DataOutputStream(socket.getOutputStream());
+             var in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             String request = in.readLine();
-            String host = "";
+            var host = "";
 
             // Parsing du header
             while (in.ready()) {
@@ -68,8 +65,10 @@ public class ClientHandler implements Runnable {
             log.info("Requête : " + request);
 
             String hostName = host.split(" ")[1];
-            int dotIndex = hostName.indexOf(".");
-            hostName = hostName.substring(0, dotIndex);
+            if (!hostName.startsWith("localhost")) {
+                int dotIndex = hostName.indexOf(".");
+                hostName = hostName.substring(0, dotIndex);
+            }
 
             log.info("Host : " + hostName);
 
@@ -84,37 +83,14 @@ public class ClientHandler implements Runnable {
      * Plusieurs vues sont créées pour afficher les différentes infos suivant la situation dans laquelle on se trouve.
      * A chaque problème rencontré (mauvaise authentification, fichier inexistant, erreur de connexion), on renvoie
      * une page pour informer l'utilisateur du problème survenu.
-     * @param dos
-     * @param request
-     * @param hostName
-     * @throws IOException
      */
     private void parseRequest(DataOutputStream dos, String request, String hostName) throws IOException {
         if (request.startsWith("GET")) {
             String path = request.split(" ")[1];
-            path = path.equals("/") ? "/index.html" : path;
-            if (new File(webroot + hostName + path).isFile()) {
-                // Le fichier existe, on continue l'exécution
-
-                // On check si le path vers le .htpasswd est correct pour éviter les problèmes lors de l'instanciation de File.
-                String pathToHtpasswd = (path.contains("/") ? path.substring(0, path.lastIndexOf('/')) : "") + "/.htpasswd";
-                File authFile = new File(webroot + hostName + pathToHtpasswd);
-                if ((authFile.exists())) {
-                    if (!auth.equals("")) {
-                        if (checkCredentials(auth, authFile)) {
-                            new View200(dos).sendResponse(webroot, hostName + path);
-                        } else {
-                            new View403(dos).sendResponse();
-                        }
-                    } else {
-                        new View401(dos).sendResponse();
-                    }
-                } else {
-                    new View200(dos).sendResponse(webroot, hostName + path);
-                }
+            if (listing) {
+                new View200(dos).sendHTML(displayDirectories(hostName, path));
             } else {
-                // Le fichier n'existe pas, on renvoie une erreur 404
-                new View404(dos).sendResponse();
+                sendResponse(dos, hostName, path);
             }
             dos.flush();
         } else if (request.startsWith("POST")) {
@@ -127,6 +103,104 @@ public class ClientHandler implements Runnable {
     }
 
     /**
+     * Récupère tous le chemin comprenant tous les parents d'un fichier en s'arrêtant au point décidé par la variable hostName.
+     * @param hostName Endroit où s'arrêter.
+     * @param file Fichier pour lequel il faut récupérer le chemin.
+     * @param finalPath Chemin final (fonction récursive)
+     * @return Le chemin final.
+     */
+    private String getAncestors(String hostName, File file, StringBuilder finalPath) {
+        var parent = file.getParentFile();
+        if (parent == null || parent.getName().equals(hostName)) {
+            return finalPath.toString();
+        } else {
+            finalPath.insert(0, parent.getName() + "/");
+            return getAncestors(hostName, parent, finalPath);
+        }
+    }
+
+    /**
+     * Crée le "fichier" HTML qui contient tous les fichiers présents dans un répertoire.
+     * @param hostName Host.
+     * @param path Répertoire sur lequel on se trouve actuellement.
+     * @return Le fichier HTML.
+     */
+    private String displayDirectories(String hostName, String path) {
+        var html = new StringBuilder();
+        html.append("<!DOCTYPE html>").append(System.lineSeparator())
+            .append("<html>").append(System.lineSeparator())
+            .append("\t<head>").append(System.lineSeparator())
+            .append("\t\t<meta charset='UTF-8'>").append(System.lineSeparator())
+            .append("\t\t<title>Directory listing</title>").append(System.lineSeparator())
+            .append("\t</head>").append(System.lineSeparator())
+            .append("\t<body>").append(System.lineSeparator())
+            .append(String.format("\t\t<h1>Liste des fichiers dans '%s'</h1>", path)).append(System.lineSeparator());
+        var root = new File(hostName.startsWith("localhost") ? "sites" + path : webroot + hostName + path);
+        if (root.exists()) {
+            html.append("\t\t<ul>").append(System.lineSeparator());
+            for (File file : Objects.requireNonNull(root.listFiles())) {
+                if (file.isDirectory()) {
+                    String childrenPath;
+                    if (hostName.startsWith("localhost")) {
+                        childrenPath = getAncestors("sites", file, new StringBuilder(file.getName()));
+                    } else {
+                        childrenPath = getAncestors(hostName, file, new StringBuilder(file.getName()));
+                    }
+
+                    html.append(String.format("\t\t\t<li><a href='/%s'>%s</a></li>", childrenPath, file.getName()))
+                            .append(System.lineSeparator());
+                } else {
+                    html.append(String.format("\t\t\t<li>%s</li>", file.getName()))
+                            .append(System.lineSeparator());
+                }
+            }
+            html.append("\t\t</ul>").append(System.lineSeparator());
+        }
+        html.append("\t</body>").append(System.lineSeparator());
+        html.append("</html>");
+        return html.toString();
+    }
+
+    /**
+     * Envoie la réponse au client pour afficher la page voulue.
+     */
+    private void sendResponse(DataOutputStream dos, String hostName, String path) throws IOException {
+        if (hostName.startsWith("localhost")) {
+            new View200(dos).sendResponse(webroot, "index.html");
+        } else {
+            path = path.equals("/") ? "/index.html" : path;
+            if (new File(webroot + hostName + path).isFile()) {
+                // On check si le path vers le .htpasswd est correct pour éviter les problèmes lors de l'instanciation de File.
+                String pathToHtpasswd = (path.contains("/") ? path.substring(0, path.lastIndexOf('/')) : "") + "/.htpasswd";
+                var authFile = new File(webroot + hostName + pathToHtpasswd);
+                if ((authFile.exists())) {
+                    handleCredentials(dos, hostName, path, authFile);
+                } else {
+                    new View200(dos).sendResponse(webroot, hostName + path);
+                }
+            } else {
+                // Le fichier n'existe pas, on renvoie une erreur 404
+                new View404(dos).sendResponse();
+            }
+        }
+    }
+
+    /**
+     * Gère la réponse dans le cas où il y a des credentials à renseigner par l'utilisateur.
+     */
+    private void handleCredentials(DataOutputStream dos, String hostName, String path, File authFile) throws IOException {
+        if (!auth.equals("")) {
+            if (checkCredentials(auth, authFile)) {
+                new View200(dos).sendResponse(webroot, hostName + path);
+            } else {
+                new View403(dos).sendResponse();
+            }
+        } else {
+            new View401(dos).sendResponse();
+        }
+    }
+
+    /**
      * Parse le fichier des credentials autorisés.
      * Crée un objet Credential contenant le username et le password pour chaque credential (classe déclarée en fin de fichier).
      * Plus simple de tout stocker dans une liste pour tout comparer lorsque l'on veut autoriser ou non un utilisateur à accéder à une page.
@@ -135,7 +209,7 @@ public class ClientHandler implements Runnable {
      */
     private List<Credentials> parseAuthFile(File authFile) {
         List<Credentials> credentialsList = new ArrayList<>();
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(authFile))) {
+        try (var bufferedReader = new BufferedReader(new FileReader(authFile))) {
             while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
                 String[] credentials = line.split(":");
@@ -157,7 +231,7 @@ public class ClientHandler implements Runnable {
      */
     private boolean checkCredentials(String auth, File authFile) {
         String encodedCredentials = auth.split(" ")[2];
-        String decodedString = new String(Base64.getDecoder().decode(encodedCredentials));
+        var decodedString = new String(Base64.getDecoder().decode(encodedCredentials));
         String[] expectedCredentials = decodedString.split(":");
         if (expectedCredentials.length == 2) {
             String username = decodedString.split(":")[0];
@@ -178,7 +252,7 @@ public class ClientHandler implements Runnable {
     private boolean passwordsMatching(String md5Password, String plainPassword) {
         String plainPasswordToMD5;
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            var md = MessageDigest.getInstance("MD5");
             md.update(plainPassword.getBytes());
             byte[] digest = md.digest();
             plainPasswordToMD5 = new BigInteger(1, digest).toString(16);

@@ -59,7 +59,7 @@ public abstract class View {
     protected void sendResponse(String location, String pathToFile) throws IOException {
         File file = new File(location + pathToFile);
         try (FileInputStream fis = new FileInputStream(file)) {
-            dos.writeBytes(getHttpCode());
+            dos.writeBytes(getHttpCode() + "\r\n");
             dos.writeBytes(retrieveContentType(pathToFile));
             dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
             dos.writeBytes("\r\n");

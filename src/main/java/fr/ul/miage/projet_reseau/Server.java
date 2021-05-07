@@ -2,28 +2,32 @@ package fr.ul.miage.projet_reseau;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Properties;
 
 @Slf4j
 public class Server {
 
-    private static int port;
+    public static int port;
     private static final String PROPERTIES_FILENAME = "config.properties";
     private static String webroot;
+    private static boolean listing;
 
     /**
      * Parsing du fichier de configuration .properties pour récupérer le port TCP et le répertoire racine des sites web
      */
     public static void parseProperties() {
-        Properties properties = new Properties();
+        var properties = new Properties();
         try (InputStream inputStream = new FileInputStream(PROPERTIES_FILENAME)) {
             properties.load(inputStream);
             port = Integer.parseInt(properties.getProperty("port"));
             webroot = properties.getProperty("webroot");
+            listing = properties.getProperty("listing").equals("true");
         } catch (FileNotFoundException e) {
             log.error(String.format("Property file '%s' not found in the classpath.", PROPERTIES_FILENAME));
             System.exit(1);
@@ -39,17 +43,16 @@ public class Server {
 
     /**
      * Lance le serveur à partir en utilisant les infos du fichier properties.
-     * @throws IOException
      */
     public void start() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"))) {
+        try (var serverSocket = new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"))) {
             log.info("En attente d'une connexion...");
             while (true) {
-                Socket clientSocket = serverSocket.accept();
+                var clientSocket = serverSocket.accept();
                 log.info("Connexion établie par l'IP : " + clientSocket.getLocalAddress());
 
                 // à chaque connexion d'un client, on crée un thread qui va gérer la requête
-                ClientHandler clientHandler = new ClientHandler(clientSocket, webroot);
+                var clientHandler = new ClientHandler(clientSocket, webroot, listing);
                 new Thread(clientHandler).start();
             }
         }
@@ -57,7 +60,7 @@ public class Server {
 
     public static void main(String[] args) {
         parseProperties();
-        Server server = new Server();
+        var server = new Server();
         try {
             server.start();
         } catch (IOException e) {

@@ -1,6 +1,7 @@
 package fr.ul.miage.projet_reseau.webview;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class View401 extends View {
 
