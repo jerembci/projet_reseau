@@ -1,10 +1,10 @@
-#Projet_reseau:
+# Projet_reseau:
 
 ----
 Groupe: *Jérémy Bonci, Tristan Chaumont, Paula Friebertshäuser*
 
 
-##Description du projet  
+## Description du projet  
 
 
 --------------------
@@ -23,18 +23,18 @@ Ce que le serveur gère:
 ️
 
 
-##Technologies utilisées
+## Technologies utilisées
 
 --------------------
 * [Java](https://docs.oracle.com/en/java/javase/13/docs/api/index.html) Version 13  - Langage du projet
 * [Maven](https://maven.apache.org/) -  Pour la gestion des dépendances
 * [Slf4j](http://slf4j.org/manual.html) - Utilisé pour générer le log
 
-##Utilisation  
+## Utilisation  
 
 --------------------
 
-###*Comment lancer le projet?*
+### *Comment lancer le projet?*
 
 1.  Lancez `Server` 
 2.  Ouvrez *localhost:80* dans le navigateur de votre choix  
@@ -44,7 +44,7 @@ Ce que le serveur gère:
     * [verti](http://verti.com)  
 
 
-###*Configuration*  
+### *Configuration*  
 
 Dans le fichier *config.properties* on peut 
 * changer le port `port= 80`  
@@ -56,7 +56,7 @@ Dans le fichier *config.properties* on peut
 
 
 
-###*Authentification*  
+### *Authentification*  
 
 Le site dopetrop est protégé par une authentification basique. Pour accéder au site on peut utiliser les données d'accès suivantes (voir aussi */sites/dopetrop/.httpsswd*):  
 * 👤 **Nom d'utilisateur:** username   
