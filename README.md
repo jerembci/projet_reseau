@@ -43,9 +43,17 @@ Ce que le serveur gère:
 Vous pouvez changer le répertoire racine dans le fichier config.properties (voir partie ***Configuration*** ci-dessous).
 Si vous le faites, veillez à toujours avoir le dossier `error-pages/` à l'intérieur (`<repertoire_racine>/error-pages/`), sinon les pages d'erreur 403, 404, etc. ne s'afficheront pas 😔
 
-### *Comment lancer le projet?*
+### *Comment lancer le projet ?*
 
-Soit (exécution java) : 
+Tout d'abord, rendez-vous dans le fichier `hosts` de votre OS, et ajoutez-y les deux lignes suivantes :
+```
+127.0.0.1	verti.com
+127.0.0.1	dopetrope.com
+```
+
+Par la suite, vous avez deux manières de lancer le projet : 
+
+Soit (exécution java) 
 1.  Lancez la classe `Server` 
 2.  Ouvrez *localhost* (par défaut port 80) dans le navigateur de votre choix  
     &rarr; vous arrivez à la page de démarrage qui propose de tester les deux sites qui sont hebergés sur le serveur:
@@ -53,7 +61,7 @@ Soit (exécution java) :
       (protegé par une authentification, *voir chapitre authentification*)
     * [verti](http://verti.com)  
 
-Soit (exécution .bat/.sh) : 
+Soit (exécution .bat/.sh) 
 1. Si vous choisissez d'exécuter le projet depuis un autre endroit que la racine, alors copiez le fichier `config.properties` et le dossier `sites/` à l'endroit où vous allez faire votre exécution.
 2. Exécutez le fichier `reseau.bat` ou `reseau.sh` qui se trouve dans le dossier `bindist-win/bin/` ou `bindist-unix/bin/` (toujours en fonction de votre OS) 
 3. Ouvrez *localhost* (par défaut port 80) dans le navigateur de votre choix  
@@ -62,7 +70,10 @@ Soit (exécution .bat/.sh) :
      (protegé par une authentification, *voir chapitre authentification*)
    * [verti](http://verti.com)  
 
+##### *Information sur le port utilisé*
 
+Si jamais vous décidez d'utiliser un port autre que 80, les liens dans l'index.html du localhost ne vont pas fonctionner lors de la redirection vers *verti.com* ou *dopetrope.com*, car on ne pouvait pas ajouter le port dynamiquement dans l'html 😅 
+Dans ce cas, il faut directement accéder aux sites en passant par la barre d'adresse.
 
 ### *Configuration*  
 
