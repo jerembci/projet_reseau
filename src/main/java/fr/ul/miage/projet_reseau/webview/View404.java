@@ -9,7 +9,7 @@ public class View404 extends View {
         super("HTTP/1.1 404 Not Found", dos);
     }
 
-    public void sendResponse() throws IOException {
-        super.sendResponse(LOCATION_ERRORS, ErrorPage.PAGE404.page());
+    public void sendResponse(String webroot) throws IOException {
+        super.sendResponse(webroot + LOCATION_ERRORS, ErrorPage.PAGE404.page());
     }
 }

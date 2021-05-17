@@ -29,12 +29,14 @@ public class ClientHandler implements Runnable {
      * @param webroot Racine des sites.
      */
     public ClientHandler(Socket socket, String webroot, boolean listing) {
+        String replacedWebroot;
         this.socket = socket;
         this.listing = listing;
-        if (webroot.charAt(webroot.length() - 1) == '/') {
-            this.webroot = webroot;
+        replacedWebroot = webroot.replace("\\\\", "/").replace("\\", "/").replace("//", "/");
+        if (webroot.charAt(webroot.length() - 1) != '/') {
+            this.webroot = replacedWebroot + '/';
         } else {
-            this.webroot = webroot + '/';
+            this.webroot = replacedWebroot;
         }
     }
 
@@ -98,7 +100,7 @@ public class ClientHandler implements Runnable {
             log.info("REQUÊTE POST");
         } else {
             // On n'a pas recu de requete GET ni POST, on renvoie une erreur 400
-            new View400(dos).sendResponse();
+            new View400(dos).sendResponse(webroot);
         }
     }
 
@@ -180,7 +182,7 @@ public class ClientHandler implements Runnable {
                 }
             } else {
                 // Le fichier n'existe pas, on renvoie une erreur 404
-                new View404(dos).sendResponse();
+                new View404(dos).sendResponse(webroot);
             }
         }
     }
@@ -193,7 +195,7 @@ public class ClientHandler implements Runnable {
             if (checkCredentials(auth, authFile)) {
                 new View200(dos).sendResponse(webroot, hostName + path);
             } else {
-                new View403(dos).sendResponse();
+                new View403(dos).sendResponse(webroot);
             }
         } else {
             new View401(dos).sendResponse();

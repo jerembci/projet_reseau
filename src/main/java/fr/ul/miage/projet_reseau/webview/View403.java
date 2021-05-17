@@ -9,7 +9,7 @@ public class View403 extends View {
         super("HTTP/1.1 403 Forbidden Access", dos);
     }
 
-    public void sendResponse() throws IOException {
-        super.sendResponse(LOCATION_ERRORS, ErrorPage.PAGE403.page());
+    public void sendResponse(String webroot) throws IOException {
+        super.sendResponse(webroot + LOCATION_ERRORS, ErrorPage.PAGE403.page());
     }
 }

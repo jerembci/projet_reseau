@@ -9,7 +9,7 @@ public class View400 extends View {
         super("HTTP/1.1 400 Bad Request", dos);
     }
 
-    public void sendResponse() throws IOException {
-        super.sendResponse(LOCATION_ERRORS, ErrorPage.PAGE400.page());
+    public void sendResponse(String webroot) throws IOException {
+        super.sendResponse(webroot + LOCATION_ERRORS, ErrorPage.PAGE400.page());
     }
 }

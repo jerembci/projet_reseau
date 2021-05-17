@@ -11,7 +11,6 @@ public class View401 extends View {
 
     /**
      * Redéfinit la requête pour renvoyer un problème d'authentificaiton.
-     * @throws IOException
      */
     public void sendResponse() throws IOException {
         dos.writeBytes(getHttpCode());

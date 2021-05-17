@@ -2,10 +2,7 @@ package fr.ul.miage.projet_reseau;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Properties;
@@ -13,7 +10,7 @@ import java.util.Properties;
 @Slf4j
 public class Server {
 
-    public static int port;
+    protected static int port;
     private static final String PROPERTIES_FILENAME = "config.properties";
     private static String webroot;
     private static boolean listing;
@@ -23,7 +20,9 @@ public class Server {
      */
     public static void parseProperties() {
         var properties = new Properties();
-        try (InputStream inputStream = new FileInputStream(PROPERTIES_FILENAME)) {
+        var file = new File(PROPERTIES_FILENAME);
+        log.info(file.getAbsolutePath());
+        try (InputStream inputStream = new FileInputStream(file)) {
             properties.load(inputStream);
             port = Integer.parseInt(properties.getProperty("port"));
             webroot = properties.getProperty("webroot");

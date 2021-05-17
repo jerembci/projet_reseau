@@ -9,7 +9,8 @@ import java.io.*;
 @Slf4j
 public abstract class View {
 
-    protected final String httpCode, contentType;
+    protected final String httpCode;
+    protected final String contentType;
     protected final DataOutputStream dos;
     protected static final String LOCATION_ERRORS = "error-pages/";
 
@@ -21,11 +22,9 @@ public abstract class View {
 
     /**
      * Renvoie le bon content-type en fonction du type de fichier rencontré.
-     * @param path
-     * @return
      */
     protected String retrieveContentType(String path) {
-        String extension = path.substring(path.lastIndexOf("."));
+        var extension = path.substring(path.lastIndexOf("."));
         switch (extension) {
             case ".html":
             case ".htm":
@@ -52,13 +51,10 @@ public abstract class View {
      * Crée la requête de réponse du serveur pour pouvoir affiche le bon contenu à l'utilisateur.
      * Cette méthode n'est jamais appelée depuis cette classe mais depuis les classes qui en héritent
      * et qui redéfinissent éventuellement cette méthode ou l'appelle simplement.
-     * @param location
-     * @param pathToFile
-     * @throws IOException
      */
     protected void sendResponse(String location, String pathToFile) throws IOException {
-        File file = new File(location + pathToFile);
-        try (FileInputStream fis = new FileInputStream(file)) {
+        var file = new File(location + pathToFile);
+        try (var fis = new FileInputStream(file)) {
             dos.writeBytes(getHttpCode() + "\r\n");
             dos.writeBytes(retrieveContentType(pathToFile));
             dos.writeBytes(String.format("Content-Length: %d%n", fis.available()));
