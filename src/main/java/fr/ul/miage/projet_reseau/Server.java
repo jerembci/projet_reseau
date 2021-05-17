@@ -26,7 +26,7 @@ public class Server {
             properties.load(inputStream);
             port = Integer.parseInt(properties.getProperty("port"));
             webroot = properties.getProperty("webroot");
-            listing = properties.getProperty("listing").equals("true");
+            listing = properties.getProperty("listing").equalsIgnoreCase("true");
         } catch (FileNotFoundException e) {
             log.error(String.format("Property file '%s' not found in the classpath.", PROPERTIES_FILENAME));
             System.exit(1);
@@ -45,7 +45,7 @@ public class Server {
      */
     public void start() throws IOException {
         try (var serverSocket = new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"))) {
-            log.info("En attente d'une connexion...");
+            log.info(String.format("En attente d'une connexion sur le port %s...", port));
             while (true) {
                 var clientSocket = serverSocket.accept();
                 log.info("Connexion établie par l'IP : " + clientSocket.getLocalAddress());
