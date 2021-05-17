@@ -60,7 +60,7 @@ Dans le fichier *config.properties* on peut
 
 Le site dopetrop est protégé par une authentification basique. Pour accéder au site on peut utiliser les données d'accès suivantes (voir aussi */sites/dopetrop/.httpsswd*):  
 * 👤 **Nom d'utilisateur:** username   
-  🔒 **Mot de passe:**
+  🔒 **Mot de passe:** password
 * 👤 **Nom d'utilisateur:** username1  
   🔒 **Mot de passe:** test
 
