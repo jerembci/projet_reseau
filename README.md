@@ -26,7 +26,7 @@ Ce que le serveur gère:
 ## Technologies utilisées
 
 --------------------
-* [Java](https://docs.oracle.com/en/java/javase/13/docs/api/index.html) Version 13  - Langage du projet
+* [Java](https://docs.oracle.com/en/java/javase/13/docs/api/index.html) Version 11  - Langage du projet
 * [Maven](https://maven.apache.org/) -  Pour la gestion des dépendances
 * [Slf4j](http://slf4j.org/manual.html) - Utilisé pour générer le log
 
@@ -34,22 +34,42 @@ Ce que le serveur gère:
 
 --------------------
 
+### *Installation*
+
+* Rendez-vous à la racine du projet et exécutez `mvn clean && mvn install`.
+
+### *Informations sur le dossier 'sites/'*
+
+Vous pouvez changer le répertoire racine dans le fichier config.properties (voir partie ***Configuration*** ci-dessous).
+Si vous le faites, veillez à toujours avoir le dossier `error-pages/` à l'intérieur (`<repertoire_racine>/error-pages/`), sinon les pages d'erreur 403, 404, etc. ne s'afficheront pas 😔
+
 ### *Comment lancer le projet?*
 
-1.  Lancez `Server` 
-2.  Ouvrez *localhost:80* dans le navigateur de votre choix  
+Soit (exécution java) : 
+1.  Lancez la classe `Server` 
+2.  Ouvrez *localhost* (par défaut port 80) dans le navigateur de votre choix  
     &rarr; vous arrivez à la page de démarrage qui propose de tester les deux sites qui sont hebergés sur le serveur:
     * [dopetrope](http://dopetrope.com)   
       (protegé par une authentification, *voir chapitre authentification*)
     * [verti](http://verti.com)  
 
+Soit (exécution .bat/.sh) : 
+1. Si vous choisissez d'exécuter le projet depuis un autre endroit que la racine, alors copiez le fichier `config.properties` et le dossier `sites/` à l'endroit où vous allez faire votre exécution.
+2. Exécutez le fichier `reseau.bat` ou `reseau.sh` qui se trouve dans le dossier `bindist-win/bin/` ou `bindist-unix/bin/` (toujours en fonction de votre OS) 
+3. Ouvrez *localhost* (par défaut port 80) dans le navigateur de votre choix  
+   &rarr; vous arrivez à la page de démarrage qui propose de tester les deux sites qui sont hebergés sur le serveur:
+   * [dopetrope](http://dopetrope.com)   
+     (protegé par une authentification, *voir chapitre authentification*)
+   * [verti](http://verti.com)  
+
+
 
 ### *Configuration*  
 
-Dans le fichier *config.properties* on peut 
+Dans le fichier *config.properties*, on peut 
 * changer le port `port= 80`  
   En cas de changement de port
-  il faut explicitement ajouter le port après localhost ou l'URL. *(exemple: )*      
+  il faut explicitement ajouter le port après localhost ou l'URL. *(exemple: verti.com:9090)*      
     
 * changer le répertoire racine (webroot), dans lequel se trouvent les pages `webroot= sites`
 * activer/desactiver l'affichage du listing des répertoires `listing= true`
