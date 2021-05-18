@@ -40,7 +40,7 @@ Ce que le serveur gère:
 
 ### *Informations sur le dossier 'sites/'*
 
-Vous pouvez changer le répertoire racine dans le fichier config.properties (voir partie ***Configuration*** ci-dessous).
+Vous pouvez changer le répertoire racine dans le fichier `config.properties` (voir partie ***Configuration*** ci-dessous).
 Si vous le faites, veillez à toujours avoir le dossier `error-pages/` à l'intérieur (`<repertoire_racine>/error-pages/`), sinon les pages d'erreur 403, 404, etc. ne s'afficheront pas 😔
 
 ### *Comment lancer le projet ?*
