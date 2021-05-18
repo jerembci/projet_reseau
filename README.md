@@ -90,7 +90,7 @@ Dans le fichier *config.properties*, on peut
 
 ### *Authentification*  
 
-Le site dopetrop est protégé par une authentification basique. Pour accéder au site on peut utiliser les données d'accès suivantes (voir aussi */sites/dopetrop/.httpsswd*):  
+Le site dopetrop est protégé par une authentification basique. Pour accéder au site on peut utiliser les données d'accès suivantes (voir aussi */sites/dopetrope/.httpsswd*):  
 * 👤 **Nom d'utilisateur:** username   
   🔒 **Mot de passe:** password
 * 👤 **Nom d'utilisateur:** username1  
