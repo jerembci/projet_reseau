@@ -73,6 +73,7 @@ Soit (exécution .bat/.sh)
 ##### *Information sur le port utilisé*
 
 Si jamais vous décidez d'utiliser un port autre que 80, les liens dans l'index.html du localhost ne vont pas fonctionner lors de la redirection vers *verti.com* ou *dopetrope.com*, car on ne pouvait pas ajouter le port dynamiquement dans l'html 😅 
+
 Dans ce cas, il faut directement accéder aux sites en passant par la barre d'adresse.
 
 ### *Configuration*  
